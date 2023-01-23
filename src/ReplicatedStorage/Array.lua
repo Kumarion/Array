@@ -18,6 +18,7 @@ function Array:destroy()
 	-- Destroy the array and remove the metatable
 	-- They could clear the array and keep reusing it, OR they could clear the array and the metatable will never be garbage collected
 	-- They can call :destroy if they know they won't be using it anymore
+	local table = self;
 	setmetatable(table, nil);
 end
 
@@ -54,7 +55,7 @@ function Array:splice(start, deleteCount, ...)
 		table.insert(newArray, self[i])
 	end
 	
-	return setmetatable(newArray, {__index = array})
+	return setmetatable(newArray, {__index = Array})
 end
 
 function Array:shuffle()
@@ -69,7 +70,7 @@ function Array:shuffle()
 		newArray[i], newArray[j] = newArray[j], newArray[i]
 	end
 	
-	return setmetatable(newArray, {__index = array})
+	return setmetatable(newArray, {__index = Array})
 end
 
 function Array:map(fn)
@@ -79,7 +80,7 @@ function Array:map(fn)
 		newArray[i] = fn(v)
 	end
 	
-	return setmetatable(newArray, {__index = array})
+	return setmetatable(newArray, {__index = Array})
 end
 
 function Array:filter(fn)
@@ -91,7 +92,7 @@ function Array:filter(fn)
 		end
 	end
 	
-	return setmetatable(newArray, {__index = array})
+	return setmetatable(newArray, {__index = Array})
 end
 
 function Array:find(target)
@@ -117,7 +118,7 @@ function Array:clone()
 		newArray[i] = v
 	end
 	
-	return setmetatable(newArray, {__index = array})
+	return setmetatable(newArray, {__index = Array})
 end
 
 function Array:every(fn)
@@ -158,7 +159,7 @@ function Array:reverse()
 		table.insert(newArray, self[i])
 	end
 	
-	return setmetatable(newArray, {__index = array})
+	return setmetatable(newArray, {__index = Array})
 end
 
 function Array:fill(value, start, en)
@@ -183,7 +184,7 @@ function Array:merge(otherTable)
 		table.insert(newTable, v)
 	end
 	
-	return setmetatable(newTable, {__index = array})
+	return setmetatable(newTable, {__index = Array})
 end
 
 function Array:concat()
