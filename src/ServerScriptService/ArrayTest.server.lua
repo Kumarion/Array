@@ -1,5 +1,5 @@
 local Array = require(game.ReplicatedStorage.Array)
-local Eggs = Array.new({
+local Eggs = Array({
 	{Egg = "Egg1", Price = 5},
 	{Egg = "Egg2", Price = 2},
 	{Egg = "Egg3", Price = 4},
@@ -28,7 +28,7 @@ local Encoded = Eggs:encode();
 print(Encoded)
 
 -- Some
-local NumbersArray = Array.new({1, 2, 3, 4, 5});
+local NumbersArray = Array({1, 2, 3, 4, 5});
 local isEven = function(num) 
 	return (num % 2 == 0);
 end
@@ -36,3 +36,15 @@ print(NumbersArray:some(isEven)); -- true
 
 -- Length
 print(NumbersArray:length())
+
+-- Shuffle numbers array
+print("Shuffled numbers array:")
+print(NumbersArray:shuffle())
+
+-- Random value
+print("Random value from numbers array:")
+print(NumbersArray:random())
+
+-- Includes
+print("Does numbers array include 3?")
+print(NumbersArray:includes(3)) -- true

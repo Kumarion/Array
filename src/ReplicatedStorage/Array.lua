@@ -1,13 +1,27 @@
 local HttpService = game:GetService("HttpService");
-local array = {};
+local Array = {};
 
-function array.new(t)
-	local newArray = t or {};
-	setmetatable(newArray, {__index = array});
-	return newArray;
+-- Array functions
+local tblFind = table.find;
+
+-- Array
+setmetatable(Array, {
+    __call = function(self, t)
+        local newArray = t or {};
+        setmetatable(newArray, {__index = Array});
+        return newArray;
+    end
+})
+
+-- Array methods
+function Array:destroy()
+	-- Destroy the array and remove the metatable
+	-- They could clear the array and keep reusing it, OR they could clear the array and the metatable will never be garbage collected
+	-- They can call :destroy if they know they won't be using it anymore
+	setmetatable(table, nil);
 end
 
-function array:sum()
+function Array:sum()
 	local sum = 0
 	
 	for i, v in ipairs(self) do
@@ -21,7 +35,44 @@ function array:sum()
 	return sum
 end
 
-function array:map(fn)
+function Array:random()
+	return self[math.random(1, #self)]
+end
+
+function Array:splice(start, deleteCount, ...)
+	local newArray = {}
+	
+	for i = 1, start - 1 do
+		table.insert(newArray, self[i])
+	end
+	
+	for i = 1, select("#", ...) do
+		table.insert(newArray, select(i, ...))
+	end
+	
+	for i = start + deleteCount, #self do
+		table.insert(newArray, self[i])
+	end
+	
+	return setmetatable(newArray, {__index = array})
+end
+
+function Array:shuffle()
+	local newArray = {}
+	
+	for i, v in ipairs(self) do
+		table.insert(newArray, v)
+	end
+	
+	for i = #newArray, 2, -1 do
+		local j = math.random(i)
+		newArray[i], newArray[j] = newArray[j], newArray[i]
+	end
+	
+	return setmetatable(newArray, {__index = array})
+end
+
+function Array:map(fn)
 	local newArray = {}
 	
 	for i, v in ipairs(self) do
@@ -31,7 +82,7 @@ function array:map(fn)
 	return setmetatable(newArray, {__index = array})
 end
 
-function array:filter(fn)
+function Array:filter(fn)
 	local newArray = {}
 	
 	for i, v in ipairs(self) do
@@ -43,11 +94,11 @@ function array:filter(fn)
 	return setmetatable(newArray, {__index = array})
 end
 
-function array:find(target)
-	return table.find(self, target)
+function Array:find(target)
+	return tblFind(self, target)
 end
 
-function array:copyWithin(target, start, en)
+function Array:copyWithin(target, start, en)
 	target = math.max(1, target + 1) -- Lua uses 1-based indexing
 	start = start or 1
 	en = en or #self
@@ -59,7 +110,7 @@ function array:copyWithin(target, start, en)
 	return self
 end
 
-function array:clone()
+function Array:clone()
 	local newArray = {}
 	
 	for i, v in ipairs(self) do
@@ -69,7 +120,7 @@ function array:clone()
 	return setmetatable(newArray, {__index = array})
 end
 
-function array:every(fn)
+function Array:every(fn)
 	for i, v in ipairs(self) do
 		if not fn(v) then
 			return false
@@ -79,7 +130,7 @@ function array:every(fn)
 	return true
 end
 
-function array:some(fn)
+function Array:some(fn)
 	for i, v in ipairs(self) do
 		if fn(v) then
 			return true
@@ -89,7 +140,7 @@ function array:some(fn)
 	return false
 end
 
-function array:reduce(fn, initialValue)
+function Array:reduce(fn, initialValue)
 	local accumulator = initialValue or self[1]
 	local startIndex = initialValue and 1 or 2
 	
@@ -100,7 +151,7 @@ function array:reduce(fn, initialValue)
 	return accumulator
 end
 
-function array:reverse()
+function Array:reverse()
 	local newArray = {}
 	
 	for i = #self, 1, -1 do
@@ -110,7 +161,7 @@ function array:reverse()
 	return setmetatable(newArray, {__index = array})
 end
 
-function array:fill(value, start, en)
+function Array:fill(value, start, en)
 	start = start or 1
 	en = en or #self
 	
@@ -121,7 +172,7 @@ function array:fill(value, start, en)
 	return self
 end
 
-function array:merge(otherTable)
+function Array:merge(otherTable)
 	local newTable = {}
 	
 	for i, v in ipairs(self) do
@@ -135,19 +186,36 @@ function array:merge(otherTable)
 	return setmetatable(newTable, {__index = array})
 end
 
-function array:concat()
+function Array:concat()
 	return table.concat(self, ",");
 end
 
-function array:encode()
+function Array:encode()
 	return HttpService:JSONEncode(self);
 end
 
-function array:decode(str)
+function Array:decode(str)
 	return HttpService:JSONDecode(str);
 end
 
-function array:shift()
+function Array:includes(value)
+	for i, v in ipairs(self) do
+		if (v == value) then
+			return true
+		end
+	end
+	
+	return false
+end
+
+function Array:clear()
+	-- fast method?
+	for i = #self, 1, -1 do
+		self[i] = nil
+	end
+end
+
+function Array:shift()
 	local first = self[1]
 	
 	for i = 1, #self - 1 do
@@ -158,25 +226,36 @@ function array:shift()
 	return first
 end
 
-function array:pop()
+function Array:pop()
+	-- fast method?
 	local last = self[#self]
 	self[#self] = nil
 	
 	return last
 end
 
-function array:push(value)
+function Array:push(value)
 	table.insert(self, value)
 	return self
 end
 
-function array:sort(cmp)
+function Array:sort(cmp)
 	table.sort(self, cmp)
 	return self
 end
 
-function array:length()
+function Array:fastRemove(i)
+	local n = #self
+	self[i] = self[n]
+	self[n] = nil
+end
+
+function Array:isEmpty()
+	return (#self == 0)
+end
+
+function Array:length()
 	return #self
 end
 
-return array
+return Array

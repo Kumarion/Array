@@ -1,5 +1,5 @@
 local Array = require(game.ReplicatedStorage.Array)
-local myArray = Array.new();
+local myArray = Array();
 table.insert(myArray, "H");
 table.insert(myArray, "He");
 table.insert(myArray, "Hel");
