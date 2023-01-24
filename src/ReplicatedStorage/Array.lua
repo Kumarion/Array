@@ -18,8 +18,7 @@ function Array:destroy()
 	-- Destroy the array and remove the metatable
 	-- They could clear the array and keep reusing it, OR they could clear the array and the metatable will never be garbage collected
 	-- They can call :destroy if they know they won't be using it anymore
-	local table = self;
-	setmetatable(table, nil);
+	setmetatable(self, nil);
 end
 
 function Array:sum()
